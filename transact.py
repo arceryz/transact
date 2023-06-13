@@ -4,6 +4,8 @@
 import requests as req
 import json
 import os
+import sys
+import datetime
 
 
 #################################################################################
@@ -28,11 +30,15 @@ def api(req):
     return "https://bankaccountdata.gocardless.com/api/v2/%s" % req
 
 def log(msg, resp=None):
-    print("!!! %s%s" % (str(msg), ": " + str(resp) if resp != None else ""))
+    return
+    print("!!! %s%s" % (str(msg), ": " + str(resp) if resp != None else ""),
+          file=sys.stderr)
+
 
 STATUS_OK = 0
 STATUS_EXPIRED = 403
 STATUS_ERROR_UNKNOWN = 1
+STATUS_INVALID_INPUT = 400
 
 
 #################################################################################
@@ -43,7 +49,7 @@ conf = load_json("conf.json")
 if conf != None:
     log("Conf loaded from conf.json")
 else:
-    log("Could not load conf")
+    err("Could not load conf")
     exit()
 
 def get_secret_key():
@@ -57,10 +63,7 @@ def get_secret_id():
 # Account.
 #################################################################################
 
-account = {
-    "access": "",
-    "refresh": ""
-}
+account = {}
 
 def load_account(file):
     acc = load_json(file)
@@ -143,11 +146,82 @@ if get_access_status() == STATUS_EXPIRED:
 
 
 #################################################################################
-# Agreements/Linking.
-#
-# With this we have certainty that the access token is valid. 
-# We can now use the API without worrying about the token.
+# Main program.
 #################################################################################
 
-save_account(conf["account_file"])
+def list_banks(country):
+    headers = {
+        "accept": "application/json",
+        "Authorization": "Bearer %s" % account["access"]
+    }
+    params = {
+        "country": country
+    }
+    res = req.get(api("institutions/"), headers=headers, params=params).json()
+    if "status_code" in res:
+        log("Error", res)
+        print("Invalid input.")
+        return STATUS_INVALID_INPUT
+    else:
+        print("%4s %-20s %-12s    %s" % ("", "Name", "BIC", "Id"))
+        for i in range(len(res)):
+            bank = res[i]
+            print("%3d. %-20.20s %-12.12s >  %s" % (i+1, bank["name"], bank["bic"], bank["id"] ))
+        return STATUS_OK
 
+def create_link(inst):
+    now = datetime.datetime.now()
+    ref = "link:%s" % str(now)
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer %s" % account["access"]
+    }
+    data = {
+        "redirect": "https://parcevval.itch.io/",
+        "institution_id": inst,
+        "reference": ref,
+    }
+    res = req.post(api("requisitions/"), headers=headers, json=data).json()
+    if "id" in res:
+        print(res["link"])
+        account["reqid"] = res["id"]
+        return STATUS_OK
+    else:
+        log("Error creating link", res)
+        return STATUS_ERROR_UNKNOWN
+
+def list_accounts():
+    headers = {
+        "accept": "application/json",
+        "Authorization": "Bearer %s" % account["access"]
+    }
+    res = req.get(api("requisitions/%s" % account["reqid"]),
+                  headers=headers).json()
+    if "accounts" in res:
+        print("Bank: %s" % res["institution_id"])
+        print("Accounts:")
+        acclist = res["accounts"]
+        for i in range(len(acclist)):
+            print("%3d. %s" % (i+1, acclist[i]))
+        return STATUS_OK
+    else:
+        log("Error", res)
+        return STATUS_ERROR_UNKNOWN
+
+if __name__ == "__main__":
+    arg = sys.argv[1:]
+    if arg[0] == "banks":
+        if len(arg) > 1:
+            list_banks(arg[1])
+        else:
+            print("Usage: transact banks [COUNTRY]")
+    if arg[0] == "link":
+        if len(arg)>  1:
+            create_link(arg[1])
+        else:
+            print("Usage: transact link [ID")
+    if arg[0] == "accounts":
+        list_accounts()
+
+    save_account(conf["account_file"])
