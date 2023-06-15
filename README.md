@@ -83,7 +83,7 @@ for viewing only transactions.
 Finally you need to actually connect your bank account by calling:
 
 ```sh
-transact account
+transact accounts
 ```
 
 Which displays all accounts that are exposed by your bank. Currently this script
