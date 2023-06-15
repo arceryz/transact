@@ -1,6 +1,6 @@
 # Transact
 
-![image](list.png)
+![image](tr_list.png)
 
 If you are like me and are annoyed with having to log in on your bank's 
 website with all sorts of security checks taking a tedious amount of time, just
