@@ -264,13 +264,13 @@ def list_transactions(num):
             pad = ""
             if amount < 0:
                 pad = " "*8
-            amount_str = "%s%-+8.2f" % (pad, amount)
+            amount_str = "%s%-+12.2f" % (pad, amount)
 
             # Date.
             dt = datetime.strptime(tr["bookingDate"], "%Y-%m-%d")
             date = dt.strftime("%b %d")
 
-            print("%3d.  %-8s %-21.20s %-17s %3.3s  %s" % 
+            print("%3d.  %-8s %-21.20s %-20s %3.3s  %s" % 
                   (i+1, date, name, amount_str, currency, iban))
     print("")
     print("      Balance: %s" % bal)
