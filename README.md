@@ -1,5 +1,7 @@
 # Transact
 
+![image](list.png)
+
 If you are like me and are annoyed with having to log in on your bank's 
 website with all sorts of security checks taking a tedious amount of time, just
 for checking your balance. Look no further, this script will help you. 
