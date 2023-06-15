@@ -16,7 +16,7 @@ This script can NOT make transactions. It can only read transactions and
 balance. You can see the contents of transact.py to see the exact extent of this
 scripts' functionality.
 
-Using a terminal interface you just call `transact transactions` and you get a 
+Using a terminal interface you just call `transact list` and you get a 
 neat list of transactions containing
 
 - Date
@@ -95,7 +95,7 @@ only uses the first bank account since multiple bank accounts are not supported.
 
 If all went well you can now list your transactions and get balance with:
 ```sh
-transact transactions 10
+transact list 10
 ```
 You can specify the number of transactions you wish to see (or none) with the
 integer argument preceding the command.

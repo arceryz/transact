@@ -282,7 +282,7 @@ if __name__ == "__main__":
         print("Usage: transact [COMMAND]")
         print("banks [COUNTRY]")
         print("link [ID]")
-        print("transactions [NUMBER]")
+        print("list [NUMBER]")
         exit()
     arg = sys.argv[1:]
     if arg[0] == "banks":
@@ -297,7 +297,7 @@ if __name__ == "__main__":
             print("Usage: transact link [ID]")
     if arg[0] == "accounts":
         list_accounts()
-    if arg[0] == "transactions":
+    if arg[0] == "list":
         num = 10
         try:
             num = int(arg[1])
