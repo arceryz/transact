@@ -5,7 +5,8 @@ import requests as req
 import json
 import os
 import sys
-import datetime
+from datetime import datetime
+from time import sleep
 
 
 #################################################################################
@@ -170,7 +171,7 @@ def list_banks(country):
         return STATUS_OK
 
 def create_link(inst):
-    now = datetime.datetime.now()
+    now = datetime.now()
     ref = "link:%s" % str(now)
     headers = {
         "accept": "application/json",
@@ -202,14 +203,84 @@ def list_accounts():
         print("Bank: %s" % res["institution_id"])
         print("Accounts:")
         acclist = res["accounts"]
+        account["bankaccount"] = acclist[0]
         for i in range(len(acclist)):
-            print("%3d. %s" % (i+1, acclist[i]))
+            bal = get_balance(acclist[i])
+            print("%3d. %-40s %s" % (i+1, acclist[i], bal))
         return STATUS_OK
     else:
         log("Error", res)
         return STATUS_ERROR_UNKNOWN
 
+def get_balance(accountid):
+    headers = {
+        "accept": "application/json",
+        "Authorization": "Bearer %s" % account["access"]
+    }
+    res = req.get(api("accounts/%s/balances/" % account["bankaccount"]),
+                  headers=headers).json()
+    if "balances" in res:
+        bc = res["balances"][0]
+        amount = float(bc["balanceAmount"]["amount"])
+        currency = bc["balanceAmount"]["currency"]
+        output = "%-+8.2f %s" % (amount, currency)
+        return output
+    else:
+        return "X"
+
+def list_transactions(num):
+    headers = {
+        "accept": "application/json",
+        "Authorization": "Bearer %s" % account["access"]
+    }
+    acc = account["bankaccount"]
+    res = req.get(api("accounts/%s/transactions/" % acc),
+                  headers=headers).json()
+    bal = get_balance(acc)
+    print("")
+    if "transactions" in res:
+        trlist = res["transactions"]["booked"]
+        for i in range(min(num, len(trlist))):
+            tr = trlist[i]
+
+            # Creditor/Debtor name and iban.
+            name = ""
+            iban = ""
+            try:
+                if "debtorName" in tr:
+                    name = tr["debtorName"]
+                    iban = tr["debtorAccount"]["iban"]
+                elif "creditorName" in tr:
+                    name = tr["creditorName"]
+                    iban = tr["creditorAccount"]["iban"]
+                else:
+                    name = tr["remittanceInformationUnstructured"]
+            except:
+                pass
+
+            # Currency.
+            amount = float(tr["transactionAmount"]["amount"])
+            currency = tr["transactionAmount"]["currency"]
+            pad = ""
+            if amount < 0:
+                pad = " "*8
+            amount_str = "%s%-+8.2f" % (pad, amount)
+
+            # Date.
+            dt = datetime.strptime(tr["bookingDate"], "%Y-%m-%d")
+            date = dt.strftime("%b %d")
+
+            print("%3d.  %-8s %-21.20s %-17s %3.3s  %s" % 
+                  (i+1, date, name, amount_str, currency, iban))
+    print("")
+    print("      Balance: %s" % bal)
+    print("")
+    pass
+
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: transact [COMMAND]")
+        exit()
     arg = sys.argv[1:]
     if arg[0] == "banks":
         if len(arg) > 1:
@@ -223,5 +294,11 @@ if __name__ == "__main__":
             print("Usage: transact link [ID")
     if arg[0] == "accounts":
         list_accounts()
+    if arg[0] == "transactions":
+        num = 10
+        try:
+            num = int(arg[1])
+        finally:
+            list_transactions(num)
 
     save_account(conf["account_file"])
