@@ -28,6 +28,10 @@ interface of your choice (status bars, gui program, cli program).
 
 # How to use
 
+This script is still in a very early stage. Over the course of time it may
+evolve with more advanced features. But the core of requesting transactions is
+functional. Only one account is supported at a time.
+
 ## 1. Create account at [GoCardless](https://bankaccountdata.gocardless.com/overview/)
 
 You will need an account at GoCardless at
