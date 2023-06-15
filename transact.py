@@ -46,11 +46,12 @@ STATUS_INVALID_INPUT = 400
 # User configuration.
 #################################################################################
 
-conf = load_json("conf.json")
+path = os.path.expanduser("~/.config/transact/")
+conf = load_json(path + "conf.json")
 if conf != None:
     log("Conf loaded from conf.json")
 else:
-    err("Could not load conf")
+    log("Could not load conf")
     exit()
 
 def get_secret_key():
@@ -66,19 +67,17 @@ def get_secret_id():
 
 account = {}
 
-def load_account(file):
-    acc = load_json(file)
+def load_account():
+    acc = load_json(path+"account.json")
     if acc != None:
         global account
         account = acc
-        log("Account loaded from %s" % file)
-    else:
-        log("Invalid json file at %s" % file)
+        log("Account loaded from account.json")
 
-def save_account(file):
-    save_json(file, account)
+def save_account():
+    save_json(path+"account.json", account)
 
-load_account(conf["account_file"])
+load_account()
 
 
 #################################################################################
@@ -280,6 +279,9 @@ def list_transactions(num):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: transact [COMMAND]")
+        print("banks [COUNTRY]")
+        print("link [ID]")
+        print("transactions [NUMBER]")
         exit()
     arg = sys.argv[1:]
     if arg[0] == "banks":
@@ -291,14 +293,15 @@ if __name__ == "__main__":
         if len(arg)>  1:
             create_link(arg[1])
         else:
-            print("Usage: transact link [ID")
+            print("Usage: transact link [ID]")
     if arg[0] == "accounts":
         list_accounts()
     if arg[0] == "transactions":
         num = 10
         try:
             num = int(arg[1])
-        finally:
-            list_transactions(num)
+        except:
+            pass
+        list_transactions(num)
 
-    save_account(conf["account_file"])
+    save_account()
