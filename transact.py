@@ -160,6 +160,7 @@ def list_banks(country):
     res = req.get(api("institutions/"), headers=headers, params=params).json()
     if "status_code" in res:
         log("Error", res)
+        print(res)
         print("Invalid input.")
         return STATUS_INVALID_INPUT
     else:

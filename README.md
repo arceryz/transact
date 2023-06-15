@@ -62,13 +62,10 @@ You now need to select your bank. You can get a list of banks by calling
 ```sh
 transact banks [COUNTRY CODE]
 ```
-For a given country code (e.g nl=netherlands, en=england).
+For a given country code (e.g nl=netherlands).
 This will display in your terminal (if the API key is correct).
 Write down your banks' id, as you will need it to link.
 
-You can find country codes at
-[https://www.iban.com/country-codes](https://www.iban.com/country-codes). It has
-to be lower case.
 
 ## 5. Link bank account.
 
