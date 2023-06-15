@@ -270,10 +270,10 @@ def list_transactions(num):
             dt = datetime.strptime(tr["bookingDate"], "%Y-%m-%d")
             date = dt.strftime("%b %d")
 
-            print("%3d.  %-8s %-21.20s %-20s %3.3s  %s" % 
+            print("%5d.  %-8s %-21.20s %-20s %3.3s  %s" % 
                   (i+1, date, name, amount_str, currency, iban))
     print("")
-    print("      Balance: %s" % bal)
+    print("        Balance: %s" % bal)
     print("")
     pass
 
