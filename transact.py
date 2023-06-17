@@ -240,6 +240,7 @@ def list_transactions(num):
     print("")
     if "transactions" in res:
         trlist = res["transactions"]["booked"]
+        curmonth = -1
         for i in range(min(num, len(trlist))):
             tr = trlist[i]
 
@@ -268,6 +269,10 @@ def list_transactions(num):
 
             # Date.
             dt = datetime.strptime(tr["bookingDate"], "%Y-%m-%d")
+            if curmonth != dt.month:
+                if curmonth >= 0:
+                    print()
+                curmonth = dt.month
             date = dt.strftime("%b %d")
 
             print("%5d.  %-8s %-21.20s %-20s %3.3s  %s" % 
