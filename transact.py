@@ -264,8 +264,8 @@ def list_transactions(num):
             currency = tr["transactionAmount"]["currency"]
             pad = ""
             if amount < 0:
-                pad = " "*8
-            amount_str = "%s%-+12.2f" % (pad, amount)
+                pad = " "*10
+            amount_str = "%s%-+10.2f" % (pad, amount)
 
             # Date.
             dt = datetime.strptime(tr["bookingDate"], "%Y-%m-%d")
@@ -275,7 +275,7 @@ def list_transactions(num):
                 curmonth = dt.month
             date = dt.strftime("%b %d")
 
-            print("%5d.  %-8s %-21.20s %-20s %3.3s  %s" % 
+            print("%5d.  %-8s %-21.20s %-21s %3.3s  %s" % 
                   (i+1, date, name, amount_str, currency, iban))
     print("")
     print("        Balance: %s" % bal)
