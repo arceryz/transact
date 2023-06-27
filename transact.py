@@ -104,6 +104,8 @@ def get_new_tokens():
         return STATUS_ERROR_UNKNOWN
 
 def refresh_access_token():
+    if "refresh" not in account:
+        return STATUS_EXPIRED
     headers = {
         "accept": "application/json",
         "Content-Type": "application/json"
@@ -121,6 +123,8 @@ def refresh_access_token():
         return STATUS_EXPIRED
 
 def get_access_status():
+    if "access" not in account:
+        return STATUS_EXPIRED
     headers = { 
         "accept": "application/json",
         "Authorization": "Bearer %s" % account["access"]
@@ -140,8 +144,8 @@ def get_access_status():
 # Refresh tokens if needed. We ensure that the access token is up to date.
 # If it is not, we try to refresh it. If refreshing fails, then we just
 # bail out and get new tokens altogether. If that fails we're doomed.
-if get_access_status() == STATUS_EXPIRED:
-    if refresh_access_token() == STATUS_EXPIRED:
+if get_access_status() != STATUS_OK:
+    if refresh_access_token() != STATUS_OK:
         get_new_tokens()
 
 
@@ -288,6 +292,7 @@ if __name__ == "__main__":
         print("banks [COUNTRY]")
         print("link [ID]")
         print("list [NUMBER]")
+        print("accounts")
         exit()
     arg = sys.argv[1:]
     if arg[0] == "banks":
